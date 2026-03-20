@@ -1,8 +1,8 @@
-import type { ProcessRequest } from '@namastex/contracts';
-import type { SessionState } from '../memory/session-manager.js';
-import type { LLMOptions } from '../providers/types.js';
-import { providerManager } from '../providers/provider-manager.js';
-import { logger } from '../lib/logger.js';
+import type { ProcessRequest } from "@namastex/contracts";
+import { logger } from "../lib/logger.js";
+import type { SessionState } from "../memory/session-manager.js";
+import { providerManager } from "../providers/provider-manager.js";
+import type { LLMOptions } from "../providers/types.js";
 
 export interface AgentResult {
   response: string;
@@ -16,7 +16,7 @@ export interface AgentResult {
 export interface AgentContext {
   request: ProcessRequest;
   session: SessionState;
-  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
+  conversationHistory: Array<{ role: "user" | "assistant"; content: string }>;
 }
 
 export abstract class BaseAgent {
@@ -34,7 +34,7 @@ export abstract class BaseAgent {
     const startTime = Date.now();
     const log = logger.child({ agent: this.name, correlationId: context.request.metadata.correlationId });
 
-    log.info('Agent executing');
+    log.info("Agent executing");
 
     const systemPrompt = this.buildSystemPrompt(context);
     const messages = this.buildMessages(context);
@@ -48,14 +48,14 @@ export abstract class BaseAgent {
 
     const llmResponse = await providerManager.chat(messages, options);
 
-    log.info('Agent completed', {
+    log.info("Agent completed", {
       tokensUsed: llmResponse.tokensUsed,
       durationMs: Date.now() - startTime,
     });
 
     return {
       response: llmResponse.content,
-      intent: context.session.currentIntent || 'unknown',
+      intent: context.session.currentIntent || "unknown",
       confidence: 0.8,
       tokensUsed: llmResponse.tokensUsed,
       model: llmResponse.model,
@@ -71,16 +71,18 @@ export abstract class BaseAgent {
 
     const facts = Object.entries(context.session.facts);
     if (facts.length > 0) {
-      parts.push(`\n## Known Facts\n${facts.map(([k, v]) => `- ${k}: ${v}`).join('\n')}`);
+      parts.push(`\n## Known Facts\n${facts.map(([k, v]) => `- ${k}: ${v}`).join("\n")}`);
     }
 
     const meta = context.request.metadata;
-    parts.push(`\n## Context\n- Channel: ${meta.channelType}\n- User: ${meta.senderName}\n- Chat type: ${meta.chatType}`);
+    parts.push(
+      `\n## Context\n- Channel: ${meta.channelType}\n- User: ${meta.senderName}\n- Chat type: ${meta.chatType}`,
+    );
 
-    return parts.join('\n');
+    return parts.join("\n");
   }
 
-  protected buildMessages(context: AgentContext): Array<{ role: 'user' | 'assistant'; content: string }> {
+  protected buildMessages(context: AgentContext): Array<{ role: "user" | "assistant"; content: string }> {
     return context.conversationHistory;
   }
 }

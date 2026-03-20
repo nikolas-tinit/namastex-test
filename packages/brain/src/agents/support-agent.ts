@@ -1,9 +1,9 @@
-import { BaseAgent } from './base-agent.js';
+import { BaseAgent } from "./base-agent.js";
 
 export class SupportAgent extends BaseAgent {
-  name = 'support';
-  description = 'Handles general questions, help requests, FAQs, and troubleshooting';
-  intents = ['question', 'help', 'faq', 'troubleshoot', 'greeting', 'unknown'];
+  name = "support";
+  description = "Handles general questions, help requests, FAQs, and troubleshooting";
+  intents = ["question", "help", "faq", "troubleshoot", "greeting", "unknown"];
 
   systemPrompt = `You are a helpful support assistant. Your role is to:
 

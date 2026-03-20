@@ -1,4 +1,4 @@
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 const LEVELS: Record<LogLevel, number> = {
   debug: 0,
@@ -7,7 +7,7 @@ const LEVELS: Record<LogLevel, number> = {
   error: 3,
 };
 
-const currentLevel = (process.env.LOG_LEVEL as LogLevel) || 'info';
+const currentLevel = (process.env.LOG_LEVEL as LogLevel) || "info";
 
 function shouldLog(level: LogLevel): boolean {
   return LEVELS[level] >= LEVELS[currentLevel];
@@ -20,12 +20,12 @@ function log(level: LogLevel, message: string, data?: Record<string, unknown>) {
     timestamp: new Date().toISOString(),
     level,
     message,
-    service: 'brain',
+    service: "brain",
     ...data,
   };
 
   const line = JSON.stringify(entry);
-  if (level === 'error') {
+  if (level === "error") {
     console.error(line);
   } else {
     console.log(line);
@@ -33,15 +33,15 @@ function log(level: LogLevel, message: string, data?: Record<string, unknown>) {
 }
 
 export const logger = {
-  debug: (msg: string, data?: Record<string, unknown>) => log('debug', msg, data),
-  info: (msg: string, data?: Record<string, unknown>) => log('info', msg, data),
-  warn: (msg: string, data?: Record<string, unknown>) => log('warn', msg, data),
-  error: (msg: string, data?: Record<string, unknown>) => log('error', msg, data),
+  debug: (msg: string, data?: Record<string, unknown>) => log("debug", msg, data),
+  info: (msg: string, data?: Record<string, unknown>) => log("info", msg, data),
+  warn: (msg: string, data?: Record<string, unknown>) => log("warn", msg, data),
+  error: (msg: string, data?: Record<string, unknown>) => log("error", msg, data),
 
   child: (defaults: Record<string, unknown>) => ({
-    debug: (msg: string, data?: Record<string, unknown>) => log('debug', msg, { ...defaults, ...data }),
-    info: (msg: string, data?: Record<string, unknown>) => log('info', msg, { ...defaults, ...data }),
-    warn: (msg: string, data?: Record<string, unknown>) => log('warn', msg, { ...defaults, ...data }),
-    error: (msg: string, data?: Record<string, unknown>) => log('error', msg, { ...defaults, ...data }),
+    debug: (msg: string, data?: Record<string, unknown>) => log("debug", msg, { ...defaults, ...data }),
+    info: (msg: string, data?: Record<string, unknown>) => log("info", msg, { ...defaults, ...data }),
+    warn: (msg: string, data?: Record<string, unknown>) => log("warn", msg, { ...defaults, ...data }),
+    error: (msg: string, data?: Record<string, unknown>) => log("error", msg, { ...defaults, ...data }),
   }),
 };

@@ -1,6 +1,6 @@
-import { config } from '../lib/config.js';
-import { providerManager } from '../providers/provider-manager.js';
-import { logger } from '../lib/logger.js';
+import { config } from "../lib/config.js";
+import { logger } from "../lib/logger.js";
+import { providerManager } from "../providers/provider-manager.js";
 
 export interface ReviewResult {
   passed: boolean;
@@ -39,7 +39,7 @@ export class ReviewAgent {
       const response = await providerManager.chat(
         [
           {
-            role: 'user',
+            role: "user",
             content: `User message: "${userMessage}"\n\nAssistant response (from ${context.agent} agent, intent: ${context.intent}):\n"${agentResponse}"`,
           },
         ],
@@ -58,7 +58,7 @@ export class ReviewAgent {
         issues: Array.isArray(parsed.issues) ? parsed.issues : [],
       };
 
-      logger.info('Review result', {
+      logger.info("Review result", {
         correlationId: context.correlationId,
         passed: result.passed,
         score: result.score,
@@ -67,7 +67,7 @@ export class ReviewAgent {
 
       return result;
     } catch (err) {
-      logger.warn('Review failed, passing by default', {
+      logger.warn("Review failed, passing by default", {
         correlationId: context.correlationId,
         error: err instanceof Error ? err.message : String(err),
       });

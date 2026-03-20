@@ -131,6 +131,10 @@ bun test packages/contracts/src/
 | `make test-message` | Enviar mensagem de teste |
 | `make test-sales` | Testar roteamento para sales |
 | `make test-ops` | Testar roteamento para ops |
+| `make channels` | Listar canais suportados |
+| `make test-webhook` | Simular webhook do Omni |
+| `make docker-up` | Subir Brain via Docker |
+| `make docker-down` | Parar Docker |
 
 ---
 
@@ -155,16 +159,14 @@ pm2 start "bun packages/brain/src/index.ts" --name brain
 pm2 save
 ```
 
-### Deploy com Docker (futuro)
-```dockerfile
-FROM oven/bun:1.1.42
-WORKDIR /app
-COPY package.json bun.lock ./
-COPY packages/ packages/
-RUN bun install --production
-EXPOSE 8890
-CMD ["bun", "packages/brain/src/index.ts"]
+### Deploy com Docker
+```bash
+make docker-up
+# ou
+docker compose up -d --build
 ```
+
+O `Dockerfile` e `docker-compose.yml` já estão configurados na raiz do projeto.
 
 ### Checklist de Produção
 - [ ] API key forte e única para BRAIN_API_KEY

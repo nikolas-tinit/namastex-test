@@ -1,9 +1,9 @@
-import { BaseAgent } from './base-agent.js';
+import { BaseAgent } from "./base-agent.js";
 
 export class OpsAgent extends BaseAgent {
-  name = 'ops';
-  description = 'Handles operational tasks, status checks, system commands, and automation triggers';
-  intents = ['status', 'report', 'automation', 'command', 'operational', 'system'];
+  name = "ops";
+  description = "Handles operational tasks, status checks, system commands, and automation triggers";
+  intents = ["status", "report", "automation", "command", "operational", "system"];
 
   systemPrompt = `You are an operational assistant. Your role is to:
 

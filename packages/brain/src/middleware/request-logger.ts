@@ -1,5 +1,5 @@
-import type { Context, Next } from 'hono';
-import { logger } from '../lib/logger.js';
+import type { Context, Next } from "hono";
+import { logger } from "../lib/logger.js";
 
 export async function requestLogger(c: Context, next: Next) {
   const startTime = Date.now();
@@ -11,11 +11,11 @@ export async function requestLogger(c: Context, next: Next) {
   const durationMs = Date.now() - startTime;
   const status = c.res.status;
 
-  logger.info('HTTP request', {
+  logger.info("HTTP request", {
     method,
     path,
     status,
     durationMs,
-    correlationId: c.get('correlationId'),
+    correlationId: c.get("correlationId"),
   });
 }

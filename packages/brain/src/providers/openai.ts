@@ -1,10 +1,10 @@
-import OpenAI from 'openai';
-import { config } from '../lib/config.js';
-import { logger } from '../lib/logger.js';
-import type { ChatMessage, LLMOptions, LLMProvider, LLMResponse } from './types.js';
+import OpenAI from "openai";
+import { config } from "../lib/config.js";
+import { logger } from "../lib/logger.js";
+import type { ChatMessage, LLMOptions, LLMProvider, LLMResponse } from "./types.js";
 
 export class OpenAIProvider implements LLMProvider {
-  name = 'openai';
+  name = "openai";
   private client: OpenAI | null = null;
 
   private getClient(): OpenAI {
@@ -16,11 +16,11 @@ export class OpenAIProvider implements LLMProvider {
 
   async chat(messages: ChatMessage[], options: LLMOptions = {}): Promise<LLMResponse> {
     const client = this.getClient();
-    const model = options.model || 'gpt-4o';
+    const model = options.model || "gpt-4o";
 
     const allMessages = [...messages];
     if (options.systemPrompt) {
-      allMessages.unshift({ role: 'system', content: options.systemPrompt });
+      allMessages.unshift({ role: "system", content: options.systemPrompt });
     }
 
     const startTime = Date.now();
@@ -29,16 +29,16 @@ export class OpenAIProvider implements LLMProvider {
       model,
       max_tokens: options.maxTokens || 2048,
       temperature: options.temperature ?? 0.7,
-      messages: allMessages.map(m => ({
+      messages: allMessages.map((m) => ({
         role: m.role,
         content: m.content,
       })),
     });
 
-    const content = response.choices[0]?.message?.content || '';
+    const content = response.choices[0]?.message?.content || "";
     const tokensUsed = response.usage?.total_tokens || 0;
 
-    logger.debug('OpenAI response', {
+    logger.debug("OpenAI response", {
       model,
       tokensUsed,
       durationMs: Date.now() - startTime,
@@ -49,7 +49,7 @@ export class OpenAIProvider implements LLMProvider {
       content,
       model,
       tokensUsed,
-      finishReason: response.choices[0]?.finish_reason || 'unknown',
+      finishReason: response.choices[0]?.finish_reason || "unknown",
     };
   }
 

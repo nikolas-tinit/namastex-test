@@ -1,25 +1,25 @@
-import { Hono } from 'hono';
-import { processMessage } from '../orchestrator.js';
+import { Hono } from "hono";
+import { processMessage } from "../orchestrator.js";
 
 const admin = new Hono();
 
 // Test endpoint — sends a simulated message through the full pipeline
-admin.post('/api/v1/admin/test-message', async (c) => {
+admin.post("/api/v1/admin/test-message", async (c) => {
   const body = await c.req.json();
-  const text = body.text || 'Olá, como funciona o sistema?';
-  const channel = body.channel || 'test';
+  const text = body.text || "Olá, como funciona o sistema?";
+  const channel = body.channel || "test";
 
   const request = {
-    messages: [{ role: 'user' as const, content: text }],
+    messages: [{ role: "user" as const, content: text }],
     metadata: {
       correlationId: crypto.randomUUID(),
-      instanceId: 'test-instance',
+      instanceId: "test-instance",
       channelType: channel,
-      chatId: 'test-chat',
-      chatType: 'dm',
-      personId: 'test-user',
-      platformUserId: 'test-platform-user',
-      senderName: body.senderName || 'Test User',
+      chatId: "test-chat",
+      chatType: "dm",
+      personId: "test-user",
+      platformUserId: "test-platform-user",
+      senderName: body.senderName || "Test User",
       isGroup: false,
     },
     stream: false,

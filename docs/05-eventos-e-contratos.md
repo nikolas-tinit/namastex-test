@@ -35,7 +35,11 @@ Emitido quando uma mensagem chega de qualquer canal.
 ```
 
 ### 2. Agent Dispatch (Omni → Brain via HTTP)
-O agent dispatcher do Omni faz POST para o Brain.
+O agent dispatcher do Omni faz POST para o Brain via webhook ou API direta.
+
+**Endpoints disponíveis:**
+- `POST /webhooks/omni/message-received` — Endpoint preferencial para webhooks do Omni. Usa o gateway adapter para tradução automática de formato.
+- `POST /api/v1/process` — Endpoint direto do Brain, espera ProcessRequest já formatado.
 
 **Request** `POST /api/v1/process`:
 ```typescript

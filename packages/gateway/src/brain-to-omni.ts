@@ -1,4 +1,4 @@
-import type { ProcessResponse } from '@namastex/contracts';
+import type { ProcessResponse } from "@namastex/contracts";
 
 /**
  * Adapts Brain's ProcessResponse to Omni's expected agent response format.

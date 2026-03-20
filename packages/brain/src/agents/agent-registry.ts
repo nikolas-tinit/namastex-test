@@ -1,15 +1,15 @@
-import type { BaseAgent } from './base-agent.js';
-import { supportAgent } from './support-agent.js';
-import { salesAgent } from './sales-agent.js';
-import { opsAgent } from './ops-agent.js';
-import { logger } from '../lib/logger.js';
+import { logger } from "../lib/logger.js";
+import type { BaseAgent } from "./base-agent.js";
+import { opsAgent } from "./ops-agent.js";
+import { salesAgent } from "./sales-agent.js";
+import { supportAgent } from "./support-agent.js";
 
 class AgentRegistry {
   private agents = new Map<string, BaseAgent>();
 
   register(agent: BaseAgent): void {
     this.agents.set(agent.name, agent);
-    logger.info('Agent registered', { agent: agent.name });
+    logger.info("Agent registered", { agent: agent.name });
   }
 
   get(name: string): BaseAgent | undefined {
@@ -21,7 +21,7 @@ class AgentRegistry {
   }
 
   list(): Array<{ name: string; description: string; intents: string[] }> {
-    return Array.from(this.agents.values()).map(a => ({
+    return Array.from(this.agents.values()).map((a) => ({
       name: a.name,
       description: a.description,
       intents: a.intents,

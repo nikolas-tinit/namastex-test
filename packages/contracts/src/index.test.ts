@@ -1,25 +1,25 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from "bun:test";
 import {
+  BrainErrorSchema,
+  DeepHealthResponseSchema,
+  HealthResponseSchema,
   ProcessRequestSchema,
   ProcessResponseSchema,
   UnifiedMessageSchema,
-  BrainErrorSchema,
-  HealthResponseSchema,
-  DeepHealthResponseSchema,
-} from './index.js';
+} from "./index.js";
 
-describe('ProcessRequestSchema', () => {
-  test('validates a complete request', () => {
+describe("ProcessRequestSchema", () => {
+  test("validates a complete request", () => {
     const request = {
-      messages: [{ role: 'user', content: 'Hello' }],
+      messages: [{ role: "user", content: "Hello" }],
       metadata: {
-        correlationId: 'test-123',
-        instanceId: 'inst-1',
-        channelType: 'whatsapp',
-        chatId: 'chat-1',
-        personId: 'person-1',
-        platformUserId: 'plat-1',
-        senderName: 'Test User',
+        correlationId: "test-123",
+        instanceId: "inst-1",
+        channelType: "whatsapp",
+        chatId: "chat-1",
+        personId: "person-1",
+        platformUserId: "plat-1",
+        senderName: "Test User",
       },
     };
 
@@ -27,38 +27,38 @@ describe('ProcessRequestSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  test('fills defaults for optional fields', () => {
+  test("fills defaults for optional fields", () => {
     const request = {
-      messages: [{ role: 'user', content: 'Hello' }],
+      messages: [{ role: "user", content: "Hello" }],
       metadata: {
-        correlationId: 'test-123',
-        instanceId: 'inst-1',
-        channelType: 'whatsapp',
-        chatId: 'chat-1',
-        personId: 'person-1',
-        platformUserId: 'plat-1',
-        senderName: 'Test User',
+        correlationId: "test-123",
+        instanceId: "inst-1",
+        channelType: "whatsapp",
+        chatId: "chat-1",
+        personId: "person-1",
+        platformUserId: "plat-1",
+        senderName: "Test User",
       },
     };
 
     const result = ProcessRequestSchema.parse(request);
     expect(result.stream).toBe(false);
     expect(result.timeout).toBe(30000);
-    expect(result.metadata.chatType).toBe('dm');
+    expect(result.metadata.chatType).toBe("dm");
     expect(result.metadata.isGroup).toBe(false);
   });
 
-  test('rejects empty messages array', () => {
+  test("rejects empty messages array", () => {
     const request = {
       messages: [],
       metadata: {
-        correlationId: 'test',
-        instanceId: 'inst',
-        channelType: 'whatsapp',
-        chatId: 'chat',
-        personId: 'person',
-        platformUserId: 'plat',
-        senderName: 'User',
+        correlationId: "test",
+        instanceId: "inst",
+        channelType: "whatsapp",
+        chatId: "chat",
+        personId: "person",
+        platformUserId: "plat",
+        senderName: "User",
       },
     };
 
@@ -67,11 +67,11 @@ describe('ProcessRequestSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  test('rejects missing metadata fields', () => {
+  test("rejects missing metadata fields", () => {
     const request = {
-      messages: [{ role: 'user', content: 'Hello' }],
+      messages: [{ role: "user", content: "Hello" }],
       metadata: {
-        correlationId: 'test',
+        correlationId: "test",
         // missing required fields
       },
     };
@@ -81,19 +81,19 @@ describe('ProcessRequestSchema', () => {
   });
 });
 
-describe('ProcessResponseSchema', () => {
-  test('validates a complete response', () => {
+describe("ProcessResponseSchema", () => {
+  test("validates a complete response", () => {
     const response = {
-      response: 'Hello!',
+      response: "Hello!",
       metadata: {
-        correlationId: 'test-123',
-        agentUsed: 'support',
-        intent: 'greeting',
+        correlationId: "test-123",
+        agentUsed: "support",
+        intent: "greeting",
         confidence: 0.9,
         processingTimeMs: 1500,
         tokensUsed: 100,
         reviewPassed: true,
-        model: 'claude-sonnet-4-20250514',
+        model: "claude-sonnet-4-20250514",
       },
     };
 
@@ -102,32 +102,32 @@ describe('ProcessResponseSchema', () => {
   });
 });
 
-describe('UnifiedMessageSchema', () => {
-  test('validates a unified message', () => {
+describe("UnifiedMessageSchema", () => {
+  test("validates a unified message", () => {
     const message = {
-      channel: 'whatsapp',
-      instanceId: 'inst-1',
-      userId: 'user-1',
-      conversationId: 'conv-1',
-      messageId: 'msg-1',
-      payload: { text: 'Hello' },
+      channel: "whatsapp",
+      instanceId: "inst-1",
+      userId: "user-1",
+      conversationId: "conv-1",
+      messageId: "msg-1",
+      payload: { text: "Hello" },
       timestamps: { receivedAt: new Date().toISOString() },
     };
 
     const result = UnifiedMessageSchema.safeParse(message);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.tenantId).toBe('default');
+      expect(result.data.tenantId).toBe("default");
     }
   });
 });
 
-describe('BrainErrorSchema', () => {
-  test('validates error codes', () => {
+describe("BrainErrorSchema", () => {
+  test("validates error codes", () => {
     const error = {
-      code: 'LLM_TIMEOUT',
-      message: 'Request timed out',
-      correlationId: 'test-123',
+      code: "LLM_TIMEOUT",
+      message: "Request timed out",
+      correlationId: "test-123",
       timestamp: new Date().toISOString(),
     };
 
@@ -135,11 +135,11 @@ describe('BrainErrorSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  test('rejects invalid error codes', () => {
+  test("rejects invalid error codes", () => {
     const error = {
-      code: 'INVALID_CODE',
-      message: 'Bad',
-      correlationId: 'test',
+      code: "INVALID_CODE",
+      message: "Bad",
+      correlationId: "test",
       timestamp: new Date().toISOString(),
     };
 
@@ -148,22 +148,22 @@ describe('BrainErrorSchema', () => {
   });
 });
 
-describe('HealthResponseSchema', () => {
-  test('validates health response', () => {
-    const health = { status: 'ok', version: '0.1.0', uptime: 3600 };
+describe("HealthResponseSchema", () => {
+  test("validates health response", () => {
+    const health = { status: "ok", version: "0.1.0", uptime: 3600 };
     expect(HealthResponseSchema.safeParse(health).success).toBe(true);
   });
 });
 
-describe('DeepHealthResponseSchema', () => {
-  test('validates deep health response', () => {
+describe("DeepHealthResponseSchema", () => {
+  test("validates deep health response", () => {
     const health = {
-      status: 'ok',
-      version: '0.1.0',
+      status: "ok",
+      version: "0.1.0",
       uptime: 3600,
       checks: {
-        llm_anthropic: { status: 'ok', latencyMs: 250 },
-        memory: { status: 'ok', details: '5 active sessions' },
+        llm_anthropic: { status: "ok", latencyMs: 250 },
+        memory: { status: "ok", details: "5 active sessions" },
       },
     };
     expect(DeepHealthResponseSchema.safeParse(health).success).toBe(true);

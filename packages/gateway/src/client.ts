@@ -1,6 +1,6 @@
-import type { ProcessRequest, ProcessResponse } from '@namastex/contracts';
-import { OmniToBrainAdapter } from './omni-to-brain.js';
-import { BrainToOmniAdapter } from './brain-to-omni.js';
+import type { ProcessRequest, ProcessResponse } from "@namastex/contracts";
+import { BrainToOmniAdapter } from "./brain-to-omni.js";
+import { OmniToBrainAdapter } from "./omni-to-brain.js";
 
 interface GatewayConfig {
   brainBaseUrl: string;
@@ -38,7 +38,7 @@ export class GatewayClient {
    */
   async process(omniPayload: Parameters<typeof OmniToBrainAdapter.adapt>[0]): Promise<GatewayResult> {
     const request = OmniToBrainAdapter.adapt(omniPayload);
-    let lastError = '';
+    let lastError = "";
 
     for (let attempt = 0; attempt <= this.config.maxRetries; attempt++) {
       try {
@@ -46,11 +46,11 @@ export class GatewayClient {
         const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
 
         const res = await fetch(`${this.config.brainBaseUrl}/api/v1/process`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': this.config.brainApiKey,
-            'x-correlation-id': request.metadata.correlationId,
+            "Content-Type": "application/json",
+            "x-api-key": this.config.brainApiKey,
+            "x-correlation-id": request.metadata.correlationId,
           },
           body: JSON.stringify(request),
           signal: controller.signal,
@@ -68,7 +68,7 @@ export class GatewayClient {
           continue; // Server error — retry
         }
 
-        const brainResponse = await res.json() as ProcessResponse;
+        const brainResponse = (await res.json()) as ProcessResponse;
         const adapted = BrainToOmniAdapter.adapt(brainResponse);
 
         return {
@@ -82,7 +82,7 @@ export class GatewayClient {
         lastError = err instanceof Error ? err.message : String(err);
         if (attempt < this.config.maxRetries) {
           // Exponential backoff: 500ms, 1500ms
-          await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+          await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
         }
       }
     }

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  brain:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8890:8890"
+    env_file:
+      - .env
+    environment:
+      - BRAIN_HOST=0.0.0.0
+      - BRAIN_PORT=8890
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8890/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # Omni is expected to run separately or via its own docker-compose.
+  # Configure OMNI_BASE_URL in .env to point to the running Omni instance.

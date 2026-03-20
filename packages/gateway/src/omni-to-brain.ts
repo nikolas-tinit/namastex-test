@@ -1,4 +1,4 @@
-import type { ProcessRequest } from '@namastex/contracts';
+import type { ProcessRequest } from "@namastex/contracts";
 
 /**
  * Adapts Omni's agent trigger format to Brain's ProcessRequest.
@@ -37,27 +37,29 @@ export class OmniToBrainAdapter {
     const meta = omniPayload.metadata || {};
 
     return {
-      messages: omniPayload.messages.map(m => ({
-        role: m.role as 'user' | 'assistant' | 'system',
+      messages: omniPayload.messages.map((m) => ({
+        role: m.role as "user" | "assistant" | "system",
         content: m.content,
         files: m.files,
       })),
       metadata: {
         correlationId: meta.correlationId || crypto.randomUUID(),
-        instanceId: meta.instanceId || 'unknown',
-        channelType: meta.channelType || 'unknown',
-        chatId: meta.chatId || 'unknown',
-        chatType: meta.chatType || 'dm',
-        personId: meta.personId || 'unknown',
-        platformUserId: meta.platformUserId || 'unknown',
-        senderName: meta.senderName || 'Unknown User',
+        instanceId: meta.instanceId || "unknown",
+        channelType: meta.channelType || "unknown",
+        chatId: meta.chatId || "unknown",
+        chatType: meta.chatType || "dm",
+        personId: meta.personId || "unknown",
+        platformUserId: meta.platformUserId || "unknown",
+        senderName: meta.senderName || "Unknown User",
         isGroup: meta.isGroup || false,
         messageId: meta.messageId,
       },
-      sessionData: omniPayload.sessionData ? {
-        sessionId: omniPayload.sessionData.sessionId || '',
-        context: omniPayload.sessionData.context || {},
-      } : undefined,
+      sessionData: omniPayload.sessionData
+        ? {
+            sessionId: omniPayload.sessionData.sessionId || "",
+            context: omniPayload.sessionData.context || {},
+          }
+        : undefined,
       stream: omniPayload.stream || false,
       timeout: omniPayload.timeout || 30000,
     };

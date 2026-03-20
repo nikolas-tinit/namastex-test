@@ -1,7 +1,7 @@
-import { logger } from '../lib/logger.js';
-import { AnthropicProvider } from './anthropic.js';
-import { OpenAIProvider } from './openai.js';
-import type { ChatMessage, LLMOptions, LLMProvider, LLMResponse } from './types.js';
+import { logger } from "../lib/logger.js";
+import { AnthropicProvider } from "./anthropic.js";
+import { OpenAIProvider } from "./openai.js";
+import type { ChatMessage, LLMOptions, LLMProvider, LLMResponse } from "./types.js";
 
 export class ProviderManager {
   private providers: LLMProvider[] = [];
@@ -15,16 +15,16 @@ export class ProviderManager {
 
     if (await anthropic.isAvailable()) {
       this.providers.push(anthropic);
-      logger.info('LLM provider registered', { provider: 'anthropic' });
+      logger.info("LLM provider registered", { provider: "anthropic" });
     }
 
     if (await openai.isAvailable()) {
       this.providers.push(openai);
-      logger.info('LLM provider registered', { provider: 'openai' });
+      logger.info("LLM provider registered", { provider: "openai" });
     }
 
     if (this.providers.length === 0) {
-      logger.warn('No LLM providers available — set ANTHROPIC_API_KEY or OPENAI_API_KEY');
+      logger.warn("No LLM providers available — set ANTHROPIC_API_KEY or OPENAI_API_KEY");
     }
 
     this.initialized = true;
@@ -37,18 +37,18 @@ export class ProviderManager {
       try {
         return await provider.chat(messages, options);
       } catch (err) {
-        logger.warn('LLM provider failed, trying next', {
+        logger.warn("LLM provider failed, trying next", {
           provider: provider.name,
           error: err instanceof Error ? err.message : String(err),
         });
       }
     }
 
-    throw new Error('All LLM providers failed');
+    throw new Error("All LLM providers failed");
   }
 
   getAvailableProviders(): string[] {
-    return this.providers.map(p => p.name);
+    return this.providers.map((p) => p.name);
   }
 
   hasProviders(): boolean {

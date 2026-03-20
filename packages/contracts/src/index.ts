@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // ============================================================
 // Core Schemas
 // ============================================================
 
 export const AttachmentSchema = z.object({
-  type: z.enum(['image', 'audio', 'video', 'document']),
+  type: z.enum(["image", "audio", "video", "document"]),
   url: z.string(),
   mimeType: z.string(),
   name: z.string().optional(),
@@ -14,13 +14,17 @@ export const AttachmentSchema = z.object({
 });
 
 export const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'assistant', 'system']),
+  role: z.enum(["user", "assistant", "system"]),
   content: z.string(),
-  files: z.array(z.object({
-    name: z.string(),
-    mimeType: z.string(),
-    url: z.string(),
-  })).optional(),
+  files: z
+    .array(
+      z.object({
+        name: z.string(),
+        mimeType: z.string(),
+        url: z.string(),
+      }),
+    )
+    .optional(),
 });
 
 export const MetadataSchema = z.object({
@@ -28,7 +32,7 @@ export const MetadataSchema = z.object({
   instanceId: z.string(),
   channelType: z.string(),
   chatId: z.string(),
-  chatType: z.string().default('dm'),
+  chatType: z.string().default("dm"),
   personId: z.string(),
   platformUserId: z.string(),
   senderName: z.string(),
@@ -67,9 +71,11 @@ export const ProcessResponseMetadataSchema = z.object({
 export const ProcessResponseSchema = z.object({
   response: z.string(),
   metadata: ProcessResponseMetadataSchema,
-  sessionUpdate: z.object({
-    context: z.record(z.unknown()),
-  }).optional(),
+  sessionUpdate: z
+    .object({
+      context: z.record(z.unknown()),
+    })
+    .optional(),
 });
 
 // ============================================================
@@ -113,15 +119,15 @@ export const SessionStateSchema = z.object({
 
 export const BrainErrorSchema = z.object({
   code: z.enum([
-    'INTENT_UNKNOWN',
-    'AGENT_UNAVAILABLE',
-    'LLM_ERROR',
-    'LLM_TIMEOUT',
-    'REVIEW_REJECTED',
-    'SESSION_EXPIRED',
-    'INVALID_REQUEST',
-    'RATE_LIMITED',
-    'INTERNAL_ERROR',
+    "INTENT_UNKNOWN",
+    "AGENT_UNAVAILABLE",
+    "LLM_ERROR",
+    "LLM_TIMEOUT",
+    "REVIEW_REJECTED",
+    "SESSION_EXPIRED",
+    "INVALID_REQUEST",
+    "RATE_LIMITED",
+    "INTERNAL_ERROR",
   ]),
   message: z.string(),
   details: z.record(z.unknown()).optional(),
@@ -134,17 +140,19 @@ export const BrainErrorSchema = z.object({
 // ============================================================
 
 export const HealthResponseSchema = z.object({
-  status: z.enum(['ok', 'degraded', 'unhealthy']),
+  status: z.enum(["ok", "degraded", "unhealthy"]),
   version: z.string(),
   uptime: z.number(),
 });
 
 export const DeepHealthResponseSchema = HealthResponseSchema.extend({
-  checks: z.record(z.object({
-    status: z.enum(['ok', 'error']),
-    latencyMs: z.number().optional(),
-    details: z.string().optional(),
-  })),
+  checks: z.record(
+    z.object({
+      status: z.enum(["ok", "error"]),
+      latencyMs: z.number().optional(),
+      details: z.string().optional(),
+    }),
+  ),
 });
 
 // ============================================================
@@ -152,7 +160,7 @@ export const DeepHealthResponseSchema = HealthResponseSchema.extend({
 // ============================================================
 
 export const UnifiedMessageSchema = z.object({
-  tenantId: z.string().default('default'),
+  tenantId: z.string().default("default"),
   channel: z.string(),
   instanceId: z.string(),
   userId: z.string(),
@@ -165,11 +173,13 @@ export const UnifiedMessageSchema = z.object({
   }),
   intent: z.string().optional(),
   agent: z.string().optional(),
-  result: z.object({
-    response: z.string(),
-    status: z.enum(['success', 'error', 'fallback', 'review_failed']),
-    reviewPassed: z.boolean(),
-  }).optional(),
+  result: z
+    .object({
+      response: z.string(),
+      status: z.enum(["success", "error", "fallback", "review_failed"]),
+      reviewPassed: z.boolean(),
+    })
+    .optional(),
   timestamps: z.object({
     receivedAt: z.string(),
     processedAt: z.string().optional(),

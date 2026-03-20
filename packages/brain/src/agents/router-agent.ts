@@ -1,7 +1,7 @@
-import { config } from '../lib/config.js';
-import { providerManager } from '../providers/provider-manager.js';
-import { logger } from '../lib/logger.js';
-import type { AgentContext } from './base-agent.js';
+import { config } from "../lib/config.js";
+import { logger } from "../lib/logger.js";
+import { providerManager } from "../providers/provider-manager.js";
+import type { AgentContext } from "./base-agent.js";
 
 export interface RouteDecision {
   agent: string;
@@ -33,29 +33,26 @@ export class RouterAgent {
   async route(context: AgentContext): Promise<RouteDecision> {
     const lastMessage = context.conversationHistory[context.conversationHistory.length - 1];
     if (!lastMessage) {
-      return { agent: 'support', intent: 'empty', confidence: 0.5, reasoning: 'No message content' };
+      return { agent: "support", intent: "empty", confidence: 0.5, reasoning: "No message content" };
     }
 
     try {
-      const response = await providerManager.chat(
-        [{ role: 'user', content: lastMessage.content }],
-        {
-          model: config.routerModel,
-          systemPrompt: ROUTER_SYSTEM_PROMPT,
-          temperature: 0.1,
-          maxTokens: 256,
-        },
-      );
+      const response = await providerManager.chat([{ role: "user", content: lastMessage.content }], {
+        model: config.routerModel,
+        systemPrompt: ROUTER_SYSTEM_PROMPT,
+        temperature: 0.1,
+        maxTokens: 256,
+      });
 
       const parsed = JSON.parse(response.content.trim());
       const decision: RouteDecision = {
-        agent: parsed.agent || 'support',
-        intent: parsed.intent || 'unknown',
+        agent: parsed.agent || "support",
+        intent: parsed.intent || "unknown",
         confidence: Math.min(1, Math.max(0, parsed.confidence || 0.5)),
-        reasoning: parsed.reasoning || '',
+        reasoning: parsed.reasoning || "",
       };
 
-      logger.info('Route decision', {
+      logger.info("Route decision", {
         correlationId: context.request.metadata.correlationId,
         agent: decision.agent,
         intent: decision.intent,
@@ -64,10 +61,10 @@ export class RouterAgent {
 
       return decision;
     } catch (err) {
-      logger.warn('Router failed to parse LLM response, defaulting to support', {
+      logger.warn("Router failed to parse LLM response, defaulting to support", {
         error: err instanceof Error ? err.message : String(err),
       });
-      return { agent: 'support', intent: 'unknown', confidence: 0.3, reasoning: 'Router parse error' };
+      return { agent: "support", intent: "unknown", confidence: 0.3, reasoning: "Router parse error" };
     }
   }
 }

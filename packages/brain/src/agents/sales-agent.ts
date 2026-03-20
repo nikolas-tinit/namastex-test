@@ -1,9 +1,9 @@
-import { BaseAgent } from './base-agent.js';
+import { BaseAgent } from "./base-agent.js";
 
 export class SalesAgent extends BaseAgent {
-  name = 'sales';
-  description = 'Handles commercial inquiries, pricing, plans, and business proposals';
-  intents = ['pricing', 'plans', 'purchase', 'upgrade', 'demo', 'proposal', 'commercial'];
+  name = "sales";
+  description = "Handles commercial inquiries, pricing, plans, and business proposals";
+  intents = ["pricing", "plans", "purchase", "upgrade", "demo", "proposal", "commercial"];
 
   systemPrompt = `You are a consultative sales assistant. Your role is to:
 

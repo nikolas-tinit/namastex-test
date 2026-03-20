@@ -6,20 +6,21 @@
 - [x] Diagnóstico dos repositórios
 - [x] Documentação de arquitetura
 - [x] Contratos e eventos definidos
-- [ ] Brain service com pipeline básico
-- [ ] Agent Gateway entre Omni e Brain
-- [ ] 5 agentes iniciais (Router, Support, Sales, Ops, Review)
-- [ ] Memória de conversa
-- [ ] API endpoints do Brain
-- [ ] Health checks
-- [ ] Observabilidade básica
-- [ ] Testes
-- [ ] Setup local
+- [x] Brain service com pipeline básico
+- [x] Agent Gateway entre Omni e Brain
+- [x] 5 agentes iniciais (Router, Support, Sales, Ops, Review)
+- [x] Memória de conversa (in-memory com TTL)
+- [x] API endpoints do Brain (process, agents, admin, webhooks, channels, conversations)
+- [x] Health checks (shallow + deep)
+- [x] Observabilidade básica (logs JSON, correlationId, traceId)
+- [x] Testes (66 tests — contracts, adapters, agents, flow, webhooks, E2E)
+- [x] Setup local (.env.example, Makefile, Dockerfile, docker-compose)
+- [x] Webhook endpoint para Omni (POST /webhooks/omni/message-received)
 
 ### Sprint 2: Robustez (próximo)
-- Provider fallback automático
+- [x] Provider fallback automático (Anthropic → OpenAI)
+- [x] Retry com backoff exponencial (gateway client)
 - Circuit breaker
-- Retry com backoff exponencial
 - Rate limiting por usuário
 - Métricas Prometheus
 - Dashboard de agentes no Omni UI
