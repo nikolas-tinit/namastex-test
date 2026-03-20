@@ -20,18 +20,42 @@ whatsappWebhooks.post("/webhooks/whatsapp/twilio", async (c) => {
   }
 
   const correlationId = c.get("correlationId") || crypto.randomUUID();
-  log.info("Twilio WhatsApp webhook received", { correlationId });
+  const contentType = c.req.header("content-type") || "";
+
+  log.info("Twilio WhatsApp webhook received", { correlationId, contentType });
 
   // Parse body — Twilio sends application/x-www-form-urlencoded
   let body: Record<string, string>;
-  const contentType = c.req.header("content-type") || "";
   if (contentType.includes("application/x-www-form-urlencoded")) {
     const formData = await c.req.parseBody();
     body = Object.fromEntries(
       Object.entries(formData).map(([k, v]) => [k, String(v)]),
     );
+  } else if (contentType.includes("application/json")) {
+    const rawBody = await c.req.text();
+    if (!rawBody || rawBody.trim() === "") {
+      log.warn("Empty JSON body received", { correlationId, contentType });
+      return c.json({ error: "Empty request body" }, 400);
+    }
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      log.warn("Invalid JSON body received", { correlationId, contentType });
+      return c.json({ error: "Invalid JSON body" }, 400);
+    }
   } else {
-    body = await c.req.json();
+    // No recognized content-type — try to read as text and detect format
+    const rawBody = await c.req.text();
+    if (!rawBody || rawBody.trim() === "") {
+      log.warn("Empty body received with unrecognized content-type", { correlationId, contentType });
+      return c.json({ error: "Empty request body" }, 400);
+    }
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      log.warn("Unparseable body received", { correlationId, contentType });
+      return c.json({ error: "Invalid request body" }, 400);
+    }
   }
 
   // Validate signature
@@ -44,6 +68,8 @@ whatsappWebhooks.post("/webhooks/whatsapp/twilio", async (c) => {
     log.warn("Twilio webhook signature validation failed", { correlationId });
     return c.json({ error: "Invalid signature" }, 403);
   }
+
+  log.info("Twilio webhook signature validated", { correlationId });
 
   // Parse inbound message
   const inbound = await twilioProvider.parseIncomingWebhook(body, headers);

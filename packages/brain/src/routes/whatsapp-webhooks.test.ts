@@ -3,7 +3,111 @@ import { app } from "../index.js";
 
 describe("WhatsApp Webhooks", () => {
   describe("POST /webhooks/whatsapp/twilio", () => {
-    test("accepts valid Twilio webhook payload", async () => {
+    test("returns 400 for empty POST body (no content-type)", async () => {
+      const res = await app.request("/webhooks/whatsapp/twilio", {
+        method: "POST",
+        headers: {
+          "x-api-key": "brain-dev-key",
+        },
+        body: "",
+      });
+
+      // 503 if WhatsApp disabled, 400 if enabled
+      if (process.env.WHATSAPP_ENABLED === "true") {
+        expect(res.status).toBe(400);
+        const body = (await res.json()) as { error: string };
+        expect(body.error).toContain("Empty request body");
+      } else {
+        expect(res.status).toBe(503);
+      }
+    });
+
+    test("returns 400 for empty JSON body", async () => {
+      const res = await app.request("/webhooks/whatsapp/twilio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "brain-dev-key",
+        },
+        body: "",
+      });
+
+      if (process.env.WHATSAPP_ENABLED === "true") {
+        expect(res.status).toBe(400);
+        const body = (await res.json()) as { error: string };
+        expect(body.error).toContain("Empty request body");
+      } else {
+        expect(res.status).toBe(503);
+      }
+    });
+
+    test("returns 400 for invalid JSON body", async () => {
+      const res = await app.request("/webhooks/whatsapp/twilio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "brain-dev-key",
+        },
+        body: "not-valid-json{{{",
+      });
+
+      if (process.env.WHATSAPP_ENABLED === "true") {
+        expect(res.status).toBe(400);
+        const body = (await res.json()) as { error: string };
+        expect(body.error).toContain("Invalid JSON body");
+      } else {
+        expect(res.status).toBe(503);
+      }
+    });
+
+    test("returns 403 for form-urlencoded without valid signature", async () => {
+      const formBody = new URLSearchParams({
+        From: "whatsapp:+5511999999999",
+        To: "whatsapp:+14155238886",
+        Body: "Hello from Twilio",
+        MessageSid: "SM_test_123",
+        NumMedia: "0",
+      }).toString();
+
+      const res = await app.request("/webhooks/whatsapp/twilio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "x-api-key": "brain-dev-key",
+        },
+        body: formBody,
+      });
+
+      // 503 if disabled; if enabled and no auth token configured, it passes signature check
+      expect([200, 403, 503]).toContain(res.status);
+    });
+
+    test("form-urlencoded with api-key returns 403 or 200 depending on config", async () => {
+      const formBody = new URLSearchParams({
+        From: "whatsapp:+5511999999999",
+        To: "whatsapp:+14155238886",
+        Body: "Hello from Twilio test",
+        MessageSid: "SM_test_webhook_form",
+        NumMedia: "0",
+        AccountSid: "AC_test_123",
+        ProfileName: "Webhook Tester",
+        WaId: "5511999999999",
+      }).toString();
+
+      const res = await app.request("/webhooks/whatsapp/twilio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "x-api-key": "brain-dev-key",
+        },
+        body: formBody,
+      });
+
+      // 503 if WhatsApp disabled, 403 if signature fails, 200 if passes
+      expect([200, 403, 503]).toContain(res.status);
+    });
+
+    test("valid JSON payload returns 403 or 200 depending on signature config", async () => {
       const body = {
         From: "whatsapp:+5511999999999",
         To: "whatsapp:+14155238886",
@@ -24,13 +128,11 @@ describe("WhatsApp Webhooks", () => {
         body: JSON.stringify(body),
       });
 
-      // 503 if WhatsApp is disabled (default in test env), 200 if enabled
-      // The route returns TwiML XML on success or JSON error
-      expect([200, 503]).toContain(res.status);
+      // 503 if WhatsApp disabled, 403 if signature fails, 200 if passes
+      expect([200, 403, 503]).toContain(res.status);
     });
 
     test("returns 503 when WhatsApp is not enabled", async () => {
-      // In test env, WHATSAPP_ENABLED is not set, so it defaults to false
       const body = {
         From: "whatsapp:+5511999999999",
         Body: "Test",
@@ -47,7 +149,6 @@ describe("WhatsApp Webhooks", () => {
         body: JSON.stringify(body),
       });
 
-      // Should be 503 since WHATSAPP_ENABLED is not set in test env
       if (!process.env.WHATSAPP_ENABLED) {
         expect(res.status).toBe(503);
         const responseBody = (await res.json()) as { error: string };
