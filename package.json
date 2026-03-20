@@ -1,0 +1,22 @@
+{
+  "name": "namastex",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --watch packages/brain/src/index.ts",
+    "start": "bun packages/brain/src/index.ts",
+    "test": "bun test packages/contracts/src/ packages/gateway/src/ packages/brain/src/",
+    "typecheck": "tsc --noEmit -p packages/brain/tsconfig.json",
+    "lint": "biome check packages/",
+    "lint:fix": "biome check --write packages/"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "^1.3.10",
+    "typescript": "^5.8.0"
+  }
+}
