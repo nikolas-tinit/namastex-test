@@ -204,3 +204,20 @@ export type BrainError = z.infer<typeof BrainErrorSchema>;
 export type HealthResponse = z.infer<typeof HealthResponseSchema>;
 export type DeepHealthResponse = z.infer<typeof DeepHealthResponseSchema>;
 export type UnifiedMessage = z.infer<typeof UnifiedMessageSchema>;
+
+// ============================================================
+// Channel exports
+// ============================================================
+
+export {
+  WhatsAppMediaSchema,
+  WhatsAppInboundMessageSchema,
+  WhatsAppOutboundMessageSchema,
+  ChannelProviderInfoSchema,
+  type WhatsAppMedia,
+  type WhatsAppInboundMessage,
+  type WhatsAppOutboundMessage,
+  type ChannelProviderInfo,
+} from "./channels/whatsapp.js";
+
+export type { ChannelProvider } from "./channels/provider-interface.js";

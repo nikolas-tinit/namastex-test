@@ -19,6 +19,7 @@ import { conversations } from "./routes/conversations.js";
 import { health } from "./routes/health.js";
 import { processRoute } from "./routes/process.js";
 import { webhooks } from "./routes/webhooks.js";
+import { whatsappWebhooks } from "./routes/whatsapp-webhooks.js";
 
 // Import agent registry to trigger registration
 import "./agents/agent-registry.js";
@@ -40,6 +41,7 @@ app.route("/", admin);
 app.route("/", webhooks);
 app.route("/", channels);
 app.route("/", conversations);
+app.route("/", whatsappWebhooks);
 
 // 404 handler
 app.notFound((c) => {

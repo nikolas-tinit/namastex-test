@@ -2,6 +2,8 @@ import type { Context, Next } from "hono";
 import { config } from "../lib/config.js";
 
 const PUBLIC_PATHS = ["/health", "/health/deep"];
+// WhatsApp webhook paths handle their own auth via provider signature validation
+const PROVIDER_AUTH_PATHS = ["/webhooks/whatsapp/twilio", "/webhooks/whatsapp/meta"];
 
 export async function authMiddleware(c: Context, next: Next) {
   const path = c.req.path;
@@ -11,7 +13,12 @@ export async function authMiddleware(c: Context, next: Next) {
     return next();
   }
 
-  // Webhook endpoints use a separate key (OMNI_WEBHOOK_SECRET or the standard brain key)
+  // WhatsApp provider webhooks handle their own signature validation
+  if (PROVIDER_AUTH_PATHS.some((p) => path.startsWith(p))) {
+    return next();
+  }
+
+  // Other webhook endpoints use a separate key (OMNI_WEBHOOK_SECRET or the standard brain key)
   if (path.startsWith("/webhooks/")) {
     const webhookKey = c.req.header("x-api-key") || c.req.header("x-webhook-secret");
     const expectedKey = config.omniWebhookSecret || config.brainApiKey;

@@ -41,6 +41,18 @@ O projeto está organizado como um monorepo Bun/TypeScript com três pacotes pri
 - `SessionState`
 - contratos de health check e erros
 
+### WhatsApp (ponta a ponta)
+
+- Suporte a **Twilio** e **Meta WhatsApp Cloud API** como providers
+- Escolha de provider por variável de ambiente (`WHATSAPP_PROVIDER`)
+- Interface `ChannelProvider` genérica para extensibilidade
+- Channel Manager para roteamento automático
+- WhatsApp Bridge conectando webhook → Omni contracts → Brain pipeline → resposta
+- Webhook async (responde 200 imediatamente, processa em background)
+- Validação de assinatura HMAC-SHA256 (Meta) e HMAC-SHA1 (Twilio)
+- Retry com backoff exponencial no envio outbound
+- Health check com status do provider WhatsApp
+
 ### Documentação
 
 A pasta `docs/` cobre:
@@ -53,6 +65,11 @@ A pasta `docs/` cobre:
 - roadmap técnico
 - observabilidade
 - operação local e produção
+- **diagnóstico WhatsApp**
+- **arquitetura WhatsApp**
+- **setup Twilio**
+- **setup Meta Cloud API**
+- **fluxo end-to-end WhatsApp**
 
 ## Estrutura
 
@@ -61,8 +78,17 @@ A pasta `docs/` cobre:
 ├── docs/
 ├── packages/
 │   ├── brain/
-│   ├── contracts/
-│   └── gateway/
+│   │   └── src/
+│   │       ├── agents/          # Router, Support, Sales, Ops, Review
+│   │       ├── channels/        # WhatsApp providers, bridge, config
+│   │       ├── lib/             # Config, logger
+│   │       ├── memory/          # Session manager
+│   │       ├── middleware/      # Auth, CORS, correlation, error handler
+│   │       ├── providers/       # LLM providers (Anthropic, OpenAI)
+│   │       └── routes/          # HTTP endpoints
+│   ├── contracts/               # Zod schemas compartilhados
+│   │   └── src/channels/        # WhatsApp contracts
+│   └── gateway/                 # Adapters Omni ↔ Brain
 ├── Dockerfile
 ├── docker-compose.yml
 ├── Makefile
@@ -80,6 +106,12 @@ A pasta `docs/` cobre:
 
 - `POST /api/v1/process`
 - `POST /webhooks/omni/message-received`
+
+### WhatsApp Webhooks
+
+- `POST /webhooks/whatsapp/twilio` — Webhook do Twilio
+- `GET /webhooks/whatsapp/meta` — Verificação do webhook Meta
+- `POST /webhooks/whatsapp/meta` — Mensagens recebidas via Meta Cloud API
 
 ### Administração
 
@@ -141,28 +173,36 @@ docker compose up -d --build
 
 ## Variáveis de ambiente esperadas
 
-Crie um `.env` na raiz com base nestes campos:
+Crie um `.env` na raiz com base no `.env.example`. Variáveis essenciais:
 
 ```env
+# Brain
 BRAIN_HOST=0.0.0.0
 BRAIN_PORT=8890
 BRAIN_API_KEY=brain-dev-key
-OMNI_API_KEY=
-OMNI_BASE_URL=http://localhost:8882
-OMNI_WEBHOOK_SECRET=
-ANTHROPIC_API_KEY=
-OPENAI_API_KEY=
-BRAIN_DEFAULT_MODEL=claude-sonnet-4-20250514
-BRAIN_ROUTER_MODEL=claude-haiku-4-5-20251001
-BRAIN_REVIEW_MODEL=claude-haiku-4-5-20251001
-BRAIN_MAX_HISTORY=20
-BRAIN_SESSION_TTL_MS=3600000
-BRAIN_SUMMARIZE_AFTER=20
-BRAIN_LLM_TIMEOUT_MS=30000
-BRAIN_PROCESS_TIMEOUT_MS=45000
-BRAIN_REVIEW_ENABLED=true
-LOG_LEVEL=info
+
+# LLM (pelo menos uma)
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+
+# WhatsApp (opcional — para ativar canal real)
+WHATSAPP_ENABLED=true
+WHATSAPP_PROVIDER=twilio          # ou "meta-cloud"
+WEBHOOK_BASE_URL=https://xxx.ngrok.io
+
+# Twilio (se WHATSAPP_PROVIDER=twilio)
+TWILIO_ACCOUNT_SID=ACxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxx
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+
+# Meta Cloud API (se WHATSAPP_PROVIDER=meta-cloud)
+META_APP_SECRET=xxxxxxxx
+META_VERIFY_TOKEN=meu-token-secreto
+META_ACCESS_TOKEN=EAAxxxxxxxx
+META_PHONE_NUMBER_ID=123456789
 ```
+
+Consulte `.env.example` para a lista completa.
 
 ## Exemplo rápido
 
@@ -194,14 +234,32 @@ curl -X POST http://localhost:8890/webhooks/omni/message-received \
   }'
 ```
 
+## WhatsApp — Quick Start
+
+1. Configure as variáveis no `.env` (veja acima)
+2. Inicie o servidor: `make dev`
+3. Exponha com ngrok: `ngrok http 8890`
+4. Configure o webhook URL no Twilio ou Meta:
+   - Twilio: `https://xxx.ngrok.io/webhooks/whatsapp/twilio`
+   - Meta: `https://xxx.ngrok.io/webhooks/whatsapp/meta`
+5. Envie uma mensagem pelo WhatsApp e receba a resposta do agente
+
+Documentação detalhada em:
+- `docs/11-whatsapp-setup-twilio.md`
+- `docs/12-whatsapp-setup-meta-cloud.md`
+- `docs/13-whatsapp-fluxo-e2e.md`
+
 ## Validação do estado atual
 
 ### O que está alinhado com o objetivo
 
 - separação clara entre brain, gateway e contracts
-- pipeline básico Omni → Gateway → Brain → Agent → Response
-- agentes iniciais implementados
+- pipeline completo Omni → Gateway → Brain → Agent → Response
+- WhatsApp real via Twilio ou Meta Cloud API (ponta a ponta)
+- agentes de suporte, vendas e operações com roteamento inteligente
+- review gate para validação de respostas
 - contrato compartilhado tipado com Zod
-- health checks e rota de teste administrativo
-- documentação inicial sólida
+- health checks com status de providers
+- testes unitários e de integração
+- documentação completa
 

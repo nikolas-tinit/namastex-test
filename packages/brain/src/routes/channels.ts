@@ -1,16 +1,24 @@
 import { Hono } from "hono";
+import { channelManager } from "../channels/channel-manager.js";
 import { config } from "../lib/config.js";
 
 const channels = new Hono();
 
 /**
  * Lists the channels the Brain knows about.
- * In production, this would query Omni's instance registry.
- * For now, returns the configured Omni connection info.
  */
 channels.get("/api/v1/channels", (c) => {
+  const whatsappProviders = channelManager.getProvidersInfo();
+  const activeWhatsApp = whatsappProviders.find((p) => p.enabled);
+
   return c.json({
     channels: [
+      {
+        type: "whatsapp",
+        status: activeWhatsApp ? activeWhatsApp.status : "disabled",
+        via: activeWhatsApp ? activeWhatsApp.name : "not-configured",
+        providers: whatsappProviders,
+      },
       { type: "whatsapp-baileys", status: "supported", via: "omni" },
       { type: "discord", status: "supported", via: "omni" },
       { type: "telegram", status: "supported", via: "omni" },

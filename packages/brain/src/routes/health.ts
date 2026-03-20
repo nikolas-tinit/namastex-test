@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { agentRegistry } from "../agents/agent-registry.js";
+import { channelManager } from "../channels/channel-manager.js";
 import { config } from "../lib/config.js";
 import { sessionManager } from "../memory/session-manager.js";
 import { providerManager } from "../providers/provider-manager.js";
@@ -34,6 +35,21 @@ health.get("/health/deep", async (c) => {
   // Check agents
   const agents = agentRegistry.list();
   checks.agents = { status: "ok", details: `${agents.length} agents registered` };
+
+  // Check WhatsApp channel providers
+  if (channelManager.isWhatsAppEnabled()) {
+    const providersInfo = channelManager.getProvidersInfo();
+    for (const info of providersInfo) {
+      if (info.enabled) {
+        checks[`channel_${info.name}`] = {
+          status: info.status === "connected" ? "ok" : "error",
+          details: `${info.channel} via ${info.name}: ${info.status}`,
+        };
+      }
+    }
+  } else {
+    checks.whatsapp = { status: "ok", details: "WhatsApp disabled" };
+  }
 
   const hasErrors = Object.values(checks).some((c) => c.status === "error");
   const status = hasErrors ? (providers.length === 0 ? "unhealthy" : "degraded") : "ok";
